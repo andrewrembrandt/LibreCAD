@@ -34,6 +34,7 @@
 #include "rs_modification.h"
 #include "rs_preview.h"
 #include "rs_debug.h"
+#include "rs_graphic.h"
 
 struct RS_ActionModifyScale::Points {
 	RS_ScaleData data;
@@ -47,6 +48,8 @@ RS_ActionModifyScale::RS_ActionModifyScale(RS_EntityContainer& container,
 		, pPoints(new Points{})
 {
 	actionType=RS2::ActionModifyScale;
+    RS2::Unit units = container.getGraphic()->getUnit();
+    pPoints->data.units = RS_Units::unitToString(units, true);
 }
 
 RS_ActionModifyScale::~RS_ActionModifyScale() = default;

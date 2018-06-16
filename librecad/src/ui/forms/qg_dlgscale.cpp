@@ -66,7 +66,6 @@ void QG_DlgScale::languageChange()
    retranslateUi(this);
 }
 
-
 void QG_DlgScale::on_leFactorX_textChanged(const QString& arg1)
 {
     scaleFactorX=arg1;
@@ -76,10 +75,19 @@ void QG_DlgScale::on_leFactorX_textChanged(const QString& arg1)
     }
 }
 
-
 void QG_DlgScale::on_leFactorY_textChanged(const QString& arg1)
 {
     scaleFactorY=arg1;
+}
+
+void QG_DlgScale::on_leDimensionX_textChanged(const QString& arg1)
+{
+    scaleDimensionX=arg1;
+}
+
+void QG_DlgScale::on_leDimensionY_textChanged(const QString& arg1)
+{
+    scaleDimensionY=arg1;
 }
 
 void QG_DlgScale::on_cbIsotropic_toggled(bool checked)
@@ -92,14 +100,34 @@ void QG_DlgScale::on_cbIsotropic_toggled(bool checked)
     }
 }
 
+void QG_DlgScale::on_groupBox_toggled(bool arg1)
+{
+    if (rbRelativeSize->isChecked()) {
+        cbIsotropic->setDisabled(false);
+        leFactorX->setDisabled(false);
+        leFactorY->setDisabled(false);
+        leDimensionX->setDisabled(true);
+        leDimensionY->setDisabled(true);
+    } else if (rbFixedSize->isChecked()) {
+        cbIsotropic->setDisabled(true);
+        leFactorX->setDisabled(true);
+        leFactorY->setDisabled(true);
+        leDimensionX->setDisabled(false);
+        leDimensionY->setDisabled(false);
+    }
+}
+
 void QG_DlgScale::init() {
     RS_SETTINGS->beginGroup("/Modify");
     copies = RS_SETTINGS->readEntry("/ScaleCopies", "10");
     numberMode = RS_SETTINGS->readNumEntry("/ScaleMode", 0);
     isotropic =
         (bool)RS_SETTINGS->readNumEntry("/ScaleIsotropic", 1);
+    fixedDimensionScaleMode=(bool)RS_SETTINGS->readNumEntry("/ScaleFixedDimensions", 0);
     scaleFactorX=RS_SETTINGS->readEntry("/ScaleFactorX", "1.0");
     scaleFactorY=RS_SETTINGS->readEntry("/ScaleFactorY", "1.0");
+    scaleDimensionX=RS_SETTINGS->readEntry("/ScaleFactorX", "1.0");
+    scaleDimensionY=RS_SETTINGS->readEntry("/ScaleFactorY", "1.0");
     useCurrentLayer =
         (bool)RS_SETTINGS->readNumEntry("/ScaleUseCurrentLayer", 0);
     useCurrentAttributes =
@@ -140,8 +168,11 @@ void QG_DlgScale::init() {
 void QG_DlgScale::destroy() {
     RS_SETTINGS->beginGroup("/Modify");
     RS_SETTINGS->writeEntry("/ScaleCopies", leNumber->text());
+    RS_SETTINGS->writeEntry("/ScaleFixedDimensions", (int)rbFixedSize->isChecked());
     RS_SETTINGS->writeEntry("/ScaleFactorX", leFactorX->text());
     RS_SETTINGS->writeEntry("/ScaleFactorY", leFactorY->text());
+    RS_SETTINGS->writeEntry("/ScaleDimensionX", leDimensionX->text());
+    RS_SETTINGS->writeEntry("/ScaleDimensionY", leDimensionY->text());
     RS_SETTINGS->writeEntry("/ScaleIsotropic",
                             (int)cbIsotropic->isChecked());
     if (rbMove->isChecked()) {
@@ -163,6 +194,8 @@ void QG_DlgScale::destroy() {
 
 void QG_DlgScale::setData(RS_ScaleData* d) {
     data = d;
+
+    unitsLabel->setText(d->units);
 }
 
 void QG_DlgScale::updateData() {
@@ -173,18 +206,32 @@ void QG_DlgScale::updateData() {
     } else {
         data->number = leNumber->text().toInt();
     }
-    scaleFactorX=leFactorX->text();
-            leFactorY->setDisabled(cbIsotropic->isChecked());
-    if(cbIsotropic->isChecked()) {
-            scaleFactorY=scaleFactorX;
-            leFactorY->setText(scaleFactorY);
-    } else {
-            scaleFactorY=leFactorY->text();
-    }
+
     bool okX;
-    double sx=RS_Math::eval(scaleFactorX,&okX);
     bool okY;
-    double sy=RS_Math::eval(scaleFactorY,&okY);
+    double sx, sy;
+    if (rbRelativeSize->isChecked()) {
+        scaleFactorX=leFactorX->text();
+                leFactorY->setDisabled(cbIsotropic->isChecked());
+        if(cbIsotropic->isChecked()) {
+                scaleFactorY=scaleFactorX;
+                leFactorY->setText(scaleFactorY);
+        } else {
+                scaleFactorY=leFactorY->text();
+        }
+
+        sx=RS_Math::eval(scaleFactorX,&okX);
+        sy=RS_Math::eval(scaleFactorY,&okY);
+    } else if (rbFixedSize->isChecked()) {
+        scaleDimensionX=leDimensionX->text();
+        scaleDimensionY=leDimensionY->text();
+
+        sx=RS_Math::eval(scaleDimensionX,&okX);
+        sy=RS_Math::eval(scaleDimensionY,&okY);
+
+        data->asFixedDimensions = true;
+    }
+
     if(okX && okY){
         data->factor = RS_Vector(sx,sy);
         data->useCurrentAttributes = cbCurrentAttributes->isChecked();

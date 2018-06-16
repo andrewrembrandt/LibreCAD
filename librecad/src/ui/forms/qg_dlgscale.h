@@ -51,12 +51,20 @@ private slots:
 
     void on_leFactorX_textChanged(const QString &arg1);
     void on_leFactorY_textChanged(const QString &arg1);
+    void on_leDimensionX_textChanged(const QString &arg1);
+    void on_leDimensionY_textChanged(const QString &arg1);
+
+    void on_groupBox_toggled(bool arg1);
 
 private:
     QString scaleFactorX;
     QString scaleFactorY;
+    QString scaleDimensionX;
+    QString scaleDimensionY;
+    QString dimensionUnits;
     RS_ScaleData* data;
     QString copies;
+    bool fixedDimensionScaleMode;
     bool isotropic;
     int numberMode;
     bool useCurrentLayer;

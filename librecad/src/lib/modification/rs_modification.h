@@ -87,8 +87,10 @@ public:
     int number;
     bool useCurrentAttributes;
     bool useCurrentLayer;
+    bool asFixedDimensions;
     RS_Vector referencePoint;
     RS_Vector factor;
+    QString units;
 };
 
 

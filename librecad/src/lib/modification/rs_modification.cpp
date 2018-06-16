@@ -1831,7 +1831,25 @@ bool RS_Modification::scale(RS_ScaleData& data) {
             num<=data.number || (data.number==0 && num<=1);
             num++) {
 
-		for(RS_Entity* e: selectedList) {
+        RS_Vector factor = data.factor;
+        if (data.asFixedDimensions) {
+            RS_Vector minV = selectedList.front()->getMin();
+            RS_Vector maxV = selectedList.front()->getMax();
+
+            // Find bounding dimensions
+            for(RS_Entity* e: selectedList) {
+                if (e) {
+                    minV = RS_Vector::minimum(minV, e->getMin());
+                    maxV = RS_Vector::maximum(maxV, e->getMax());
+                }
+            }
+
+            RS_Vector curSize = RS_Vector(maxV.x - minV.x, maxV.y - minV.y);
+
+            factor = RS_Vector(factor.x / curSize.x, factor.y / curSize.y);
+        }
+
+        for(RS_Entity* e: selectedList) {
             //for (RS_Entity* e=container->firstEntity();
             //        e;
             //        e=container->nextEntity()) {
@@ -1841,7 +1859,7 @@ bool RS_Modification::scale(RS_ScaleData& data) {
                 RS_Entity* ec = e->clone();
                 ec->setSelected(false);
 
-                ec->scale(data.referencePoint, RS_Math::pow(data.factor, num));
+                ec->scale(data.referencePoint, RS_Math::pow(factor, num));
                 if (data.useCurrentLayer) {
                     ec->setLayerToActive();
                 }
