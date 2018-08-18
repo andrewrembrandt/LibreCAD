@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
-    <height>419</height>
+    <width>605</width>
+    <height>413</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -291,7 +291,7 @@
     <string notr="true">1.0</string>
    </property>
    <property name="readOnly">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QLabel" name="lFactor_3">
@@ -357,7 +357,7 @@
     <rect>
      <x>179</x>
      <y>99</y>
-     <width>361</width>
+     <width>411</width>
      <height>211</height>
     </rect>
    </property>
@@ -387,7 +387,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Relati&amp;ve Size</string>
+     <string>Re&amp;lative Size</string>
     </property>
    </widget>
    <widget class="QLabel" name="unitsLabel">
